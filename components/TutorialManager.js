@@ -596,6 +596,35 @@ export class TutorialManager {
     }
     
     /**
+     * 🆕 skipIf条件を評価する
+     * @param {string} condition - 条件文字列
+     * @returns {boolean} - 条件が満たされている場合true
+     */
+    _evaluateSkipCondition(condition) {
+        console.log(`[TutorialManager] 🔍 skipIf評価: ${condition}`);
+        
+        switch (condition) {
+            case 'PRESCRIPTION_ERROR_ALREADY_REPORTED':
+                // CheckSceneで処方箋エラーが既に報告されているかチェック
+                const checkScene = this.game.scene.getScene('CheckScene');
+                if (checkScene && checkScene.foundErrors && checkScene.foundErrors.length > 0) {
+                    console.log(`[TutorialManager] ✅ 処方箋エラーは既に報告済み (${checkScene.foundErrors.length}件)`);
+                    return true;
+                }
+                // または、prescriptionCheckCompletedフラグをチェック
+                if (checkScene && checkScene.prescriptionCheckCompleted) {
+                    console.log(`[TutorialManager] ✅ 処方箋チェックは既に完了`);
+                    return true;
+                }
+                return false;
+                
+            default:
+                console.warn(`[TutorialManager] ⚠️ 未知のskipIf条件: ${condition}`);
+                return false;
+        }
+    }
+    
+    /**
      * 🆕 ミスフィードバックを表示すべきかチェック
      */
     _shouldShowMistakeFeedback(stepId) {
@@ -1060,6 +1089,18 @@ export class TutorialManager {
         if (!step) return;
         
         console.log(`[TutorialManager] ステップ表示: ${this.currentStepIndex + 1}/${TutorialSteps.length} - ${step.id} (Phase ${step.phase})`);
+        
+        // 🆕 skipIf条件をチェック
+        // ステップ定義に skipIf が指定されていて、その条件が満たされている場合はスキップ
+        if (step.skipIf) {
+            const shouldSkip = this._evaluateSkipCondition(step.skipIf);
+            if (shouldSkip) {
+                console.log(`[TutorialManager] ⏭️ skipIf条件が満たされたためスキップ: ${step.id}`);
+                this.currentStepIndex++;
+                this._proceedToNextStep();
+                return;
+            }
+        }
         
         // ロック状態更新
         this._updateButtonLockState();
