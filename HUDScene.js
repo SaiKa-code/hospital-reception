@@ -1758,6 +1758,38 @@ export class HUDScene extends Phaser.Scene {
             }
         });
         
+        // 📱 タッチドラッグスクロール対応
+        this.scoreLogDragging = false;
+        this.scoreLogDragStartY = 0;
+
+        this.input.on('pointerdown', (pointer) => {
+            if (this.scoreWindow && this.scoreWindow.visible) {
+                // スコアウィンドウ領域内（中央800x600の領域）の場合のみ
+                const bounds = { left: 960 - 400, right: 960 + 400, top: 540 - 300, bottom: 540 + 300 };
+                if (pointer.x >= bounds.left && pointer.x <= bounds.right &&
+                    pointer.y >= bounds.top && pointer.y <= bounds.bottom) {
+                    this.scoreLogDragging = true;
+                    this.scoreLogDragStartY = pointer.y;
+                }
+            }
+        });
+
+        this.input.on('pointermove', (pointer) => {
+            if (this.scoreLogDragging && this.scoreWindow && this.scoreWindow.visible) {
+                const deltaYVal = this.scoreLogDragStartY - pointer.y;
+                this._scrollLog(deltaYVal * 2);
+                this.scoreLogDragStartY = pointer.y;
+            }
+        });
+
+        this.input.on('pointerup', () => {
+            this.scoreLogDragging = false;
+        });
+
+        this.input.on('pointerupoutside', () => {
+            this.scoreLogDragging = false;
+        });
+        
         // キーボード操作
         this.input.keyboard.on('keydown-UP', () => {
             if (this.scoreWindow.visible) this._scrollLog(-50);

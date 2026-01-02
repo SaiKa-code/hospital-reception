@@ -432,6 +432,45 @@ export class ResultScene extends Phaser.Scene {
         this.input.on('wheel', (pointer, gameObjects, deltaX, deltaY, deltaZ) => {
             this._scrollScoreLog(deltaY);
         });
+
+        // 📱 タッチドラッグスクロール対応
+        this.logDragging = false;
+        this.logDragStartY = 0;
+        this.logDragStartScrollY = 0;
+
+        const logPanelBounds = {
+            left: panelX - panelW/2,
+            right: panelX + panelW/2,
+            top: panelY - panelH/2,
+            bottom: panelY + panelH/2
+        };
+
+        this.input.on('pointerdown', (pointer) => {
+            // スコアログパネル内でのみドラッグ開始
+            if (pointer.x >= logPanelBounds.left && pointer.x <= logPanelBounds.right &&
+                pointer.y >= logPanelBounds.top && pointer.y <= logPanelBounds.bottom) {
+                this.logDragging = true;
+                this.logDragStartY = pointer.y;
+                this.logDragStartScrollY = this.scoreLogContainer ? this.scoreLogContainer.y : 0;
+            }
+        });
+
+        this.input.on('pointermove', (pointer) => {
+            if (this.logDragging && this.logScrollData) {
+                const deltaYVal = this.logDragStartY - pointer.y;
+                this._scrollScoreLog(deltaYVal * 2); // ドラッグ距離をスクロール量に変換
+                this.logDragStartY = pointer.y; // 継続的なドラッグに対応
+            }
+        });
+
+        this.input.on('pointerup', () => {
+            this.logDragging = false;
+        });
+
+        this.input.on('pointerupoutside', () => {
+            this.logDragging = false;
+        });
+
         
         // 合計
         const totalY = panelY + panelH/2 - 35;

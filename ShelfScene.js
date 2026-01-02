@@ -98,6 +98,36 @@ create() {
             this._clampScroll();
         });
 
+        // 📱 タッチドラッグスクロール対応
+        this.isDragging = false;
+        this.dragStartY = 0;
+        this.dragStartScrollY = 0;
+
+        this.input.on('pointerdown', (pointer) => {
+            // 左側のタブエリア（x < 280）以外でドラッグ開始
+            if (pointer.x > 280) {
+                this.isDragging = true;
+                this.dragStartY = pointer.y;
+                this.dragStartScrollY = this.scrollableContent.y;
+            }
+        });
+
+        this.input.on('pointermove', (pointer) => {
+            if (this.isDragging) {
+                const deltaY = pointer.y - this.dragStartY;
+                this.scrollableContent.y = this.dragStartScrollY + deltaY;
+                this._clampScroll();
+            }
+        });
+
+        this.input.on('pointerup', () => {
+            this.isDragging = false;
+        });
+
+        this.input.on('pointerupoutside', () => {
+            this.isDragging = false;
+        });
+
         // スクロール範囲変数の初期化
         this.minScrollY = 0;
         

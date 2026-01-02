@@ -1318,6 +1318,39 @@ export class TutorialScene extends Phaser.Scene {
             this.logScrollY = Phaser.Math.Clamp(this.logScrollY, 0, maxScroll);
             logContent.setY(logAreaY + 15 - this.logScrollY);
         });
+
+        // 📱 タッチドラッグスクロール対応
+        this.logDragging = false;
+        this.logDragStartY = 0;
+
+        this.input.on('pointerdown', (pointer) => {
+            if (!this.isLogOpen) return;
+            // ログエリア内かチェック
+            const worldLogAreaX = 960 + logAreaX;
+            const worldLogAreaY = 540 + logAreaY;
+            if (pointer.x >= worldLogAreaX && pointer.x <= worldLogAreaX + logAreaWidth &&
+                pointer.y >= worldLogAreaY && pointer.y <= worldLogAreaY + logAreaHeight) {
+                this.logDragging = true;
+                this.logDragStartY = pointer.y;
+            }
+        });
+
+        this.input.on('pointermove', (pointer) => {
+            if (!this.isLogOpen || !this.logDragging) return;
+            const deltaYVal = this.logDragStartY - pointer.y;
+            this.logScrollY += deltaYVal;
+            this.logScrollY = Phaser.Math.Clamp(this.logScrollY, 0, maxScroll);
+            logContent.setY(logAreaY + 15 - this.logScrollY);
+            this.logDragStartY = pointer.y;
+        });
+
+        this.input.on('pointerup', () => {
+            this.logDragging = false;
+        });
+
+        this.input.on('pointerupoutside', () => {
+            this.logDragging = false;
+        });
         
         // スクロールバー（見た目のみ）
         if (maxScroll > 0) {
