@@ -190,6 +190,37 @@ export class HelpPopup {
             }
         });
 
+        // 📱 タッチドラッグスクロール対応
+        this.isDragging = false;
+        this.dragStartY = 0;
+
+        this.scene.input.on('pointerdown', (pointer) => {
+            if (!this.isVisible) return;
+            // スクロールエリア内かチェック (maskX, maskY, winW-40, viewportHeight)
+            if (pointer.x >= maskX && pointer.x <= maskX + winW - 40 &&
+                pointer.y >= maskY && pointer.y <= maskY + this.viewportHeight) {
+                this.isDragging = true;
+                this.dragStartY = pointer.y;
+            }
+        });
+
+        this.scene.input.on('pointermove', (pointer) => {
+            if (!this.isVisible || !this.isDragging) return;
+            const deltaYVal = this.dragStartY - pointer.y;
+            this.scrollY = Phaser.Math.Clamp(this.scrollY + deltaYVal, 0, this.maxScrollY);
+            this._updateScrollbarFromContent();
+            this._updateContentPosition();
+            this.dragStartY = pointer.y;
+        });
+
+        this.scene.input.on('pointerup', () => {
+            this.isDragging = false;
+        });
+
+        this.scene.input.on('pointerupoutside', () => {
+            this.isDragging = false;
+        });
+
         this.container.add([bg, headerBg, titleText, closeBtn, closeIcon, 
                           this.tabsContainer, this.contentContainer, 
                           this.scrollBarBg, this.scrollBarHandle]);
