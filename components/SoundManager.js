@@ -80,11 +80,21 @@ export class SoundManager {
                 scene.currentBGM.stop();
             }
             
-            scene.currentBGM = scene.sound.add(key, { 
-                volume: finalVol, 
-                loop: loop 
-            });
-            scene.currentBGM.play();
+            const doPlay = () => {
+                if (scene.currentBGM && scene.currentBGM.isPlaying) return;
+                scene.currentBGM = scene.sound.add(key, { 
+                    volume: finalVol, 
+                    loop: loop 
+                });
+                scene.currentBGM.play();
+            };
+
+            // Web Autoplay Policy 対策
+            if (scene.sound.locked) {
+                scene.sound.once('unlocked', doPlay);
+            } else {
+                doPlay();
+            }
             return scene.currentBGM;
         } catch (e) {
             console.error('[SoundManager] BGM play error:', key, e);
