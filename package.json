@@ -1,0 +1,73 @@
+{
+  "name": "hospital-reception-simulator",
+  "productName": "クビを回避せよ！",
+  "version": "1.0.0",
+  "description": "病院受付シミュレーションゲーム",
+  "main": "electron/main.js",
+  "scripts": {
+    "start": "electron .",
+    "build:win": "electron-builder --win",
+    "build:mac": "electron-builder --mac",
+    "build:linux": "electron-builder --linux",
+    "build:all": "electron-builder --win --mac --linux"
+  },
+  "author": "",
+  "license": "UNLICENSED",
+  "private": true,
+  "devDependencies": {
+    "electron": "^28.0.0",
+    "electron-builder": "^24.9.1"
+  },
+  "build": {
+    "appId": "com.yourname.hospital-reception",
+    "productName": "クビを回避せよ！",
+    "directories": {
+      "output": "dist"
+    },
+    "asar": false,
+    "files": [
+      "**/*",
+      "!dist/**",
+      "!node_modules/.cache/**",
+      "!仕様書/**",
+      "!現状評価/**",
+      "!server.ps1",
+      "steam_appid.txt"
+    ],
+    "extraResources": [
+      {
+        "from": "steam_appid.txt",
+        "to": "steam_appid.txt"
+      }
+    ],
+    "win": {
+      "target": [
+        {
+          "target": "nsis",
+          "arch": [
+            "x64"
+          ]
+        }
+      ],
+      "icon": "assets/images/icon.ico"
+    },
+    "mac": {
+      "target": "dmg",
+      "icon": "assets/images/icon.icns"
+    },
+    "linux": {
+      "target": "AppImage",
+      "icon": "assets/images/icon.png"
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true,
+      "installerLanguages": [
+        "ja"
+      ]
+    }
+  },
+  "dependencies": {
+    "steamworks.js": "^0.4.0"
+  }
+}
