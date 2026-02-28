@@ -83,15 +83,24 @@ export class TutorialScene extends Phaser.Scene {
         this.isSkipConfirmOpen = false; // スキップ確認表示中
         
         // =========================================================
-        // BGM再生
+        // BGM再生（Web Autoplay Policy 対策）
         // =========================================================
         this.sound.stopAll();
         if (this.cache.audio.exists('bgm_maou_game_town18')) {
-            this.bgm = this.sound.add('bgm_maou_game_town18', { 
-                loop: true, 
-                volume: 0.3 
-            });
-            this.bgm.play();
+            const playBgm = () => {
+                if (this.bgm && this.bgm.isPlaying) return;
+                this.bgm = this.sound.add('bgm_maou_game_town18', { 
+                    loop: true, 
+                    volume: 0.3 
+                });
+                this.bgm.play();
+            };
+
+            if (this.sound.locked) {
+                this.sound.once('unlocked', playBgm);
+            } else {
+                playBgm();
+            }
         }
         
         // =========================================================

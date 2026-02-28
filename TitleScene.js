@@ -14,15 +14,26 @@ export class TitleScene extends Phaser.Scene {
         const centerY = 540;
         
         // =========================================================
-        // タイトルBGM再生
+        // タイトルBGM再生（Web Autoplay Policy 対策）
         // =========================================================
         this.sound.stopAll(); // 他のBGMを停止
         if (this.cache.audio.exists('bgm_hinokageri')) {
-            this.titleBgm = this.sound.add('bgm_hinokageri', { 
-                loop: true, 
-                volume: 0.4 
-            });
-            this.titleBgm.play();
+            const playTitleBgm = () => {
+                if (this.titleBgm && this.titleBgm.isPlaying) return;
+                this.titleBgm = this.sound.add('bgm_hinokageri', { 
+                    loop: true, 
+                    volume: 0.4 
+                });
+                this.titleBgm.play();
+            };
+
+            if (this.sound.locked) {
+                // ブラウザがまだ音声をロックしている → 最初のユーザー操作で再生
+                this.sound.once('unlocked', playTitleBgm);
+            } else {
+                // すでにアンロック済み（2回目以降のシーン遷移など）
+                playTitleBgm();
+            }
         }
         
         // =========================================================

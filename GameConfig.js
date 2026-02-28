@@ -65,9 +65,9 @@ const config = {
   height: 1080,
   parent: 'game-container',  // HTML input要素を正しく配置するためのコンテナ
   
-  // Electron環境での音声互換性のためHTML5 Audioを使用
+  // Web環境ではWeb Audio APIを使用（HTML5 Audioより安定）
   audio: {
-    disableWebAudio: true
+    disableWebAudio: false
   },
   
   scene: [
